@@ -1,17 +1,29 @@
+/**
+ * Класс CalculatorUI представляет пользовательский интерфейс калькулятора.
+ * Обеспечивает взаимодействие с пользователем через консоль, поддерживает
+ * различные системы счисления и ведение лога операций.
+ */
 import java.io.IOException;
 
 public class CalculatorUI {
-    private final KeyboardInput input;
-    private final Calculator calculator;
-    private final CustomFileWriter logWriter;
-    private int inputRadix = 10;
+    // Компоненты для работы калькулятора
+    private final KeyboardInput input;        // Обработка пользовательского ввода
+    private final Calculator calculator;      // Основная логика вычислений
+    private final CustomFileWriter logWriter; // Запись операций в лог
+    private int inputRadix = 10;             // Текущая система счисления для ввода (по умолчанию десятичная)
 
+    /**
+     * Конструктор класса. Инициализирует основные компоненты калькулятора.
+     */
     public CalculatorUI() {
         this.input = new KeyboardInput();
         this.calculator = new Calculator();
         this.logWriter = new CustomFileWriter("calculator_log.txt");
     }
 
+    /**
+     * Отображает главное меню калькулятора с доступными операциями.
+     */
     public void showMenu() {
         System.out.println("\nДобро пожаловать в Калькулятор!");
         System.out.println("Доступные операции:");
@@ -24,6 +36,10 @@ public class CalculatorUI {
         System.out.println("q : Выход");
     }
 
+    /**
+     * Отображает результат вычисления во всех поддерживаемых системах счисления.
+     * @param result результат вычисления для отображения
+     */
     private void displayResult(double result) {
         System.out.println("\nРезультат в разных системах счисления:");
         System.out.printf("Двоичная: %s%n", NumberSystemConverter.formatNumber(result, 2));
@@ -32,6 +48,11 @@ public class CalculatorUI {
         System.out.printf("Шестнадцатеричная: %s%n", NumberSystemConverter.formatNumber(result, 16));
     }
 
+    /**
+     * Позволяет пользователю выбрать систему счисления для ввода чисел.
+     * Поддерживаются системы: двоичная (2), восьмеричная (8), 
+     * десятичная (10) и шестнадцатеричная (16).
+     */
     private void selectNumberSystem() {
         System.out.println("\nВыберите систему счисления для ввода:");
         System.out.println("2 - Двоичная");
@@ -55,6 +76,12 @@ public class CalculatorUI {
         }
     }
 
+    /**
+     * Записывает информацию об операции в лог-файл.
+     * @param operation название выполненной операции
+     * @param number введенное число
+     * @param result результат операции
+     */
     private void logOperation(String operation, double number, double result) {
         try {
             logWriter.writeLine(String.format(
@@ -72,6 +99,14 @@ public class CalculatorUI {
         }
     }
 
+    /**
+     * Основной метод работы калькулятора. Обрабатывает пользовательский ввод
+     * и управляет выполнением операций. Поддерживает:
+     * - Базовые арифметические операции (+, -, *, /)
+     * - Смену системы счисления
+     * - Сброс результата
+     * - Ведение лога операций
+     */
     public void run() {
         boolean running = true;
         showMenu();
