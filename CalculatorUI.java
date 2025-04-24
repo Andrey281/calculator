@@ -27,13 +27,15 @@ public class CalculatorUI {
     public void showMenu() {
         System.out.println("\nДобро пожаловать в Калькулятор!");
         System.out.println("Доступные операции:");
-        System.out.println("+ : Сложение");
-        System.out.println("- : Вычитание");
-        System.out.println("* : Умножение");
-        System.out.println("/ : Деление");
-        System.out.println("c : Сброс результата");
-        System.out.println("i : Изменить систему счисления ввода");
-        System.out.println("q : Выход");
+        System.out.println("Введите операцию и число вместе, например:");
+        System.out.println("+5  : Прибавить 5");
+        System.out.println("-3  : Вычесть 3");
+        System.out.println("*2  : Умножить на 2");
+        System.out.println("/4  : Разделить на 4");
+        System.out.println("Также доступны команды:");
+        System.out.println("c   : Сброс результата");
+        System.out.println("i   : Изменить систему счисления ввода");
+        System.out.println("q   : Выход");
     }
 
     /**
@@ -100,6 +102,28 @@ public class CalculatorUI {
     }
 
     /**
+     * Разбирает строку ввода на операцию и число.
+     * Поддерживает форматы: "операция число" и "число"
+     * 
+     * @param input строка ввода
+     * @return массив из двух элементов: операция и число
+     */
+    private String[] parseInput(String input) {
+        input = input.trim();
+        String operation = "+";
+        String number = input;
+
+        // Если первый символ - операция
+        if (input.startsWith("+") || input.startsWith("-") || 
+            input.startsWith("*") || input.startsWith("/")) {
+            operation = input.substring(0, 1);
+            number = input.substring(1).trim();
+        }
+
+        return new String[]{operation, number};
+    }
+
+    /**
      * Основной метод работы калькулятора. Обрабатывает пользовательский ввод
      * и управляет выполнением операций. Поддерживает:
      * - Базовые арифметические операции (+, -, *, /)
@@ -125,31 +149,30 @@ public class CalculatorUI {
                     displayResult(firstNumber);
                 }
 
-                String operation = input.readLine("\nВведите операцию (+, -, *, /) или c для сброса, i для изменения системы счисления, q для выхода: ").trim();
+                String inputPrompt = String.format("\nВведите операцию и число (например: +5, -3, *2) или команду (c/i/q): ", inputRadix);
+                String userInput = input.readLine(inputPrompt).trim();
 
-                if (operation.equalsIgnoreCase("q")) {
+                if (userInput.equalsIgnoreCase("q")) {
                     running = false;
                     continue;
                 }
 
-                if (operation.equalsIgnoreCase("c")) {
+                if (userInput.equalsIgnoreCase("c")) {
                     calculator.reset();
                     continue;
                 }
 
-                if (operation.equalsIgnoreCase("i")) {
+                if (userInput.equalsIgnoreCase("i")) {
                     selectNumberSystem();
                     continue;
                 }
 
-                if (!operation.matches("[+\\-*/]")) {
-                    System.out.println("Ошибка: введите корректную операцию!");
-                    continue;
-                }
+                // Разбираем ввод на операцию и число
+                String[] parts = parseInput(userInput);
+                String operation = parts[0];
+                String numberStr = parts[1];
 
                 try {
-                    String numberPrompt = String.format("Введите число (в %d-ичной системе): ", inputRadix);
-                    String numberStr = input.readLine(numberPrompt);
                     double number = NumberSystemConverter.parseNumber(numberStr, inputRadix);
                     double result = 0;
 
@@ -174,6 +197,9 @@ public class CalculatorUI {
                             result = calculator.divide(number);
                             logOperation("деление", number, result);
                             break;
+                        default:
+                            System.out.println("Ошибка: неизвестная операция!");
+                            continue;
                     }
 
                     displayResult(result);
