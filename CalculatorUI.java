@@ -8,23 +8,24 @@ import java.io.IOException;
 public class CalculatorUI {
     // Компоненты для работы калькулятора
     private final KeyboardInput input;        // Обработка пользовательского ввода
-    private final Calculator calculator;      // Основная логика вычислений
+    private final NumberSystemConverter calculator;      // Основная логика вычислений
     private final CustomFileWriter logWriter; // Запись операций в лог
-    private int inputRadix = 10;             // Текущая система счисления для ввода (по умолчанию десятичная)
+    private int inputRadix;             // Текущая система счисления для ввода
 
     /**
      * Конструктор класса. Инициализирует основные компоненты калькулятора.
      */
     public CalculatorUI() {
         this.input = new KeyboardInput();
-        this.calculator = new Calculator();
+        this.calculator = new NumberSystemConverter();
         this.logWriter = new CustomFileWriter("calculator_log.txt");
+        this.inputRadix = 10; // По умолчанию десятичная система
     }
 
     /**
      * Отображает главное меню калькулятора с доступными операциями.
      */
-    public void showMenu() {
+    private void showMenu() {
         System.out.println("\nДобро пожаловать в Калькулятор!");
         System.out.println("Доступные операции:");
         System.out.println("Введите операцию и число вместе, например:");
@@ -44,16 +45,19 @@ public class CalculatorUI {
      */
     private void displayResult(double result) {
         System.out.println("\nРезультат в разных системах счисления:");
-        System.out.printf("Двоичная: %s%n", NumberSystemConverter.formatNumber(result, 2));
-        System.out.printf("Восьмеричная: %s%n", NumberSystemConverter.formatNumber(result, 8));
-        System.out.printf("Десятичная: %s%n", NumberSystemConverter.formatNumber(result, 10));
-        System.out.printf("Шестнадцатеричная: %s%n", NumberSystemConverter.formatNumber(result, 16));
+        calculator.setRadix(2);
+        System.out.printf("Двоичная: %s%n", calculator.formatResult(result));
+        calculator.setRadix(8);
+        System.out.printf("Восьмеричная: %s%n", calculator.formatResult(result));
+        calculator.setRadix(10);
+        System.out.printf("Десятичная: %s%n", calculator.formatResult(result));
+        calculator.setRadix(16);
+        System.out.printf("Шестнадцатеричная: %s%n", calculator.formatResult(result));
+        calculator.setRadix(inputRadix); // Возвращаем исходную систему счисления
     }
 
     /**
      * Позволяет пользователю выбрать систему счисления для ввода чисел.
-     * Поддерживаются системы: двоичная (2), восьмеричная (8), 
-     * десятичная (10) и шестнадцатеричная (16).
      */
     private void selectNumberSystem() {
         System.out.println("\nВыберите систему счисления для ввода:");
@@ -70,6 +74,7 @@ public class CalculatorUI {
                     continue;
                 }
                 inputRadix = radix;
+                calculator.setRadix(radix);
                 System.out.printf("Система счисления ввода установлена на %d-ичную%n", radix);
                 break;
             } catch (NumberFormatException e) {
@@ -86,15 +91,25 @@ public class CalculatorUI {
      */
     private void logOperation(String operation, double number, double result) {
         try {
+            calculator.setRadix(2);
+            String binResult = calculator.formatResult(result);
+            calculator.setRadix(8);
+            String octResult = calculator.formatResult(result);
+            calculator.setRadix(10);
+            String decResult = calculator.formatResult(result);
+            calculator.setRadix(16);
+            String hexResult = calculator.formatResult(result);
+            calculator.setRadix(inputRadix); // Возвращаем исходную систему счисления
+
             logWriter.writeLine(String.format(
                 "Операция: %s, Число: %.2f, Результат: %.2f (BIN: %s, OCT: %s, DEC: %s, HEX: %s)", 
                 operation, 
                 number, 
                 result,
-                NumberSystemConverter.formatNumber(result, 2),
-                NumberSystemConverter.formatNumber(result, 8),
-                NumberSystemConverter.formatNumber(result, 10),
-                NumberSystemConverter.formatNumber(result, 16)
+                binResult,
+                octResult,
+                decResult,
+                hexResult
             ));
         } catch (IOException e) {
             System.out.println("Ошибка при записи в лог: " + e.getMessage());
@@ -103,8 +118,6 @@ public class CalculatorUI {
 
     /**
      * Разбирает строку ввода на операцию и число.
-     * Поддерживает форматы: "операция число" и "число"
-     * 
      * @param input строка ввода
      * @return массив из двух элементов: операция и число
      */
@@ -113,7 +126,6 @@ public class CalculatorUI {
         String operation = "+";
         String number = input;
 
-        // Если первый символ - операция
         if (input.startsWith("+") || input.startsWith("-") || 
             input.startsWith("*") || input.startsWith("/")) {
             operation = input.substring(0, 1);
@@ -124,18 +136,11 @@ public class CalculatorUI {
     }
 
     /**
-     * Основной метод работы калькулятора. Обрабатывает пользовательский ввод
-     * и управляет выполнением операций. Поддерживает:
-     * - Базовые арифметические операции (+, -, *, /)
-     * - Смену системы счисления
-     * - Сброс результата
-     * - Ведение лога операций
+     * Основной метод работы калькулятора.
      */
     public void run() {
         boolean running = true;
         showMenu();
-
-        // Сначала выбираем систему счисления
         selectNumberSystem();
 
         while (running) {
@@ -143,13 +148,14 @@ public class CalculatorUI {
                 if (calculator.isFirstOperation()) {
                     String inputPrompt = String.format("\nВведите первое число (в %d-ичной системе): ", inputRadix);
                     String numberStr = input.readLine(inputPrompt);
+                    calculator.setRadix(inputRadix);
                     double firstNumber = NumberSystemConverter.parseNumber(numberStr, inputRadix);
                     calculator.setMemory(firstNumber);
                     System.out.println("Начальное число:");
                     displayResult(firstNumber);
                 }
 
-                String inputPrompt = String.format("\nВведите операцию и число (например: +5, -3, *2) или команду (c/i/q): ", inputRadix);
+                String inputPrompt = String.format("\nВведите операцию и число (например: +5, -3, *2) или команду (c/i/q): ");
                 String userInput = input.readLine(inputPrompt).trim();
 
                 if (userInput.equalsIgnoreCase("q")) {
@@ -167,12 +173,12 @@ public class CalculatorUI {
                     continue;
                 }
 
-                // Разбираем ввод на операцию и число
                 String[] parts = parseInput(userInput);
                 String operation = parts[0];
                 String numberStr = parts[1];
 
                 try {
+                    calculator.setRadix(inputRadix);
                     double number = NumberSystemConverter.parseNumber(numberStr, inputRadix);
                     double result = 0;
 

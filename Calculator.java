@@ -1,14 +1,14 @@
 /**
- * Класс Calculator реализует основную логику калькулятора.
- * Поддерживает базовые арифметические операции и хранение
- * промежуточного результата в памяти.
+ * Абстрактный класс Calculator определяет базовый функционал калькулятора.
+ * Все конкретные реализации калькулятора должны наследоваться от этого класса
+ * и реализовывать его абстрактные методы.
  */
-public class Calculator {
-    private double memory;           // Хранит текущий результат вычислений
-    private boolean isFirstOperation; // Флаг первой операции
+public abstract class Calculator {
+    protected double memory;           // Хранит текущий результат вычислений
+    protected boolean isFirstOperation; // Флаг первой операции
 
     /**
-     * Конструктор калькулятора.
+     * Конструктор абстрактного калькулятора.
      * Инициализирует память нулем и устанавливает флаг первой операции.
      */
     public Calculator() {
@@ -43,7 +43,6 @@ public class Calculator {
 
     /**
      * Сбрасывает состояние калькулятора в начальное.
-     * Очищает память и устанавливает флаг первой операции.
      */
     public void reset() {
         this.memory = 0;
@@ -51,46 +50,38 @@ public class Calculator {
     }
 
     /**
-     * Выполняет операцию сложения.
-     * @param num число для сложения с текущим значением в памяти
+     * Абстрактный метод для выполнения операции сложения.
+     * @param num число для сложения
      * @return результат операции
      */
-    public double add(double num) {
-        memory += num;
-        return memory;
-    }
+    public abstract double add(double num);
 
     /**
-     * Выполняет операцию вычитания.
-     * @param num число для вычитания из текущего значения в памяти
+     * Абстрактный метод для выполнения операции вычитания.
+     * @param num число для вычитания
      * @return результат операции
      */
-    public double subtract(double num) {
-        memory -= num;
-        return memory;
-    }
+    public abstract double subtract(double num);
 
     /**
-     * Выполняет операцию умножения.
-     * @param num число для умножения на текущее значение в памяти
+     * Абстрактный метод для выполнения операции умножения.
+     * @param num множитель
      * @return результат операции
      */
-    public double multiply(double num) {
-        memory *= num;
-        return memory;
-    }
+    public abstract double multiply(double num);
 
     /**
-     * Выполняет операцию деления.
+     * Абстрактный метод для выполнения операции деления.
      * @param num делитель
      * @return результат операции
      * @throws ArithmeticException при попытке деления на ноль
      */
-    public double divide(double num) throws ArithmeticException {
-        if (num == 0) {
-            throw new ArithmeticException("Деление на ноль невозможно!");
-        }
-        memory /= num;
-        return memory;
-    }
+    public abstract double divide(double num) throws ArithmeticException;
+
+    /**
+     * Абстрактный метод для форматирования результата.
+     * @param number число для форматирования
+     * @return отформатированное представление числа
+     */
+    public abstract String formatResult(double number);
 } 
