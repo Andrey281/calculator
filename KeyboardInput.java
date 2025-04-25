@@ -38,7 +38,7 @@ public class KeyboardInput {
                 System.out.print(prompt);
                 return Integer.parseInt(scanner.nextLine());
             } catch (NumberFormatException e) {
-                System.out.println("Ошибка: Введите целое число!");
+                System.out.println("Ошибка: Введите число!");
             }
         }
     }
