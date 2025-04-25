@@ -45,14 +45,46 @@ public class CalculatorUI {
      */
     private void displayResult(double result) {
         System.out.println("\nРезультат в разных системах счисления:");
-        calculator.setRadix(2);
-        System.out.printf("Двоичная: %s%n", calculator.formatResult(result));
-        calculator.setRadix(8);
-        System.out.printf("Восьмеричная: %s%n", calculator.formatResult(result));
-        calculator.setRadix(10);
-        System.out.printf("Десятичная: %s%n", calculator.formatResult(result));
-        calculator.setRadix(16);
-        System.out.printf("Шестнадцатеричная: %s%n", calculator.formatResult(result));
+        
+        // Сначала выводим результат в текущей системе счисления
+        String currentSystemName;
+        switch (inputRadix) {
+            case 2:
+                currentSystemName = "Двоичная";
+                break;
+            case 8:
+                currentSystemName = "Восьмеричная";
+                break;
+            case 10:
+                currentSystemName = "Десятичная";
+                break;
+            case 16:
+                currentSystemName = "Шестнадцатеричная";
+                break;
+            default:
+                currentSystemName = "Текущая";
+        }
+        calculator.setRadix(inputRadix);
+        System.out.printf("%s: %s%n", currentSystemName, calculator.formatResult(result));
+
+        // Затем выводим остальные системы счисления
+        if (inputRadix != 2) {
+            calculator.setRadix(2);
+            System.out.printf("Двоичная: %s%n", calculator.formatResult(result));
+        }
+        if (inputRadix != 8) {
+            calculator.setRadix(8);
+            System.out.printf("Восьмеричная: %s%n", calculator.formatResult(result));
+        }
+        if (inputRadix != 10) {
+            calculator.setRadix(10);
+            System.out.printf("Десятичная: %s%n", calculator.formatResult(result));
+        }
+        if (inputRadix != 16) {
+            calculator.setRadix(16);
+            System.out.printf("Шестнадцатеричная: %s%n", calculator.formatResult(result));
+        }
+        
         calculator.setRadix(inputRadix); // Возвращаем исходную систему счисления
     }
 

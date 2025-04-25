@@ -7,6 +7,7 @@ public abstract class Calculator {
     protected double memory;           // Хранит текущий результат вычислений
     protected boolean isFirstOperation; // Флаг первой операции
 
+
     /**
      * Конструктор абстрактного калькулятора.
      * Инициализирует память нулем и устанавливает флаг первой операции.
